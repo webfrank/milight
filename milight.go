@@ -198,7 +198,7 @@ func (m *Milight) checksum(bytes []byte) byte {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Fatal error ", err.Error())
+		fmt.Fprintf(os.Stderr, "Fatal error %v\n", err.Error())
 		os.Exit(1)
 	}
 }
