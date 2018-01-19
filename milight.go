@@ -42,6 +42,11 @@ func New() *Milight {
 	return m
 }
 
+func (m *Milight) Destroy() {
+	m.conn.Close()
+	m.conn = nil
+}
+
 func (m *Milight) Off() {
 	m.sendCmd(m.buildCmd(OFF))
 }
@@ -85,7 +90,9 @@ func (m *Milight) Brightness(brightness byte) {
 
 func (m *Milight) Alert() {
 	m.On()
+	time.Sleep(time.Millisecond * 100)
 	m.Brightness(100)
+	time.Sleep(time.Millisecond * 100)
 	m.Mode(6)
 }
 
@@ -121,9 +128,10 @@ func (m *Milight) discover() (string, error) {
 	conn.SetReadDeadline(deadline)
 	for time.Now().Before(deadline) {
 		//fmt.Printf("Listening...\n")
-		n, addr, _ := conn.ReadFromUDP(buf)
-		fmt.Println(addr, n, string(buf[0:n]))
+		n, _, _ := conn.ReadFromUDP(buf)
+		//fmt.Println(addr, n, string(buf[0:n]))
 		s := strings.Split(string(buf[0:n]), ",")
+		fmt.Println(s)
 		if len(s) == 3 {
 			return s[0], nil
 		}
