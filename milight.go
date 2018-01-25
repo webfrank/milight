@@ -113,10 +113,10 @@ func (m *Milight) discover() (string, error) {
 	rAddr, err := net.ResolveUDPAddr("udp4", "255.255.255.255:48899")
 	checkError(err)
 
-	lAddr, err := net.ResolveUDPAddr("udp4", ":48899")
+	lAddr, err := net.ResolveUDPAddr("udp4", "0.0.0.0:48899")
 	checkError(err)
 
-	conn, err := net.ListenUDP("udp", lAddr)
+	conn, err := net.ListenUDP("udp4", lAddr)
 	checkError(err)
 	defer conn.Close()
 
