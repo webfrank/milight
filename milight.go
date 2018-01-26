@@ -48,25 +48,25 @@ func (m *Milight) Destroy() {
 }
 
 func (m *Milight) Off() {
-	m.sendCmd(m.buildCmd(OFF))
+	m.retryCmd(m.buildCmd(OFF))
 }
 
 func (m *Milight) On() {
-	m.sendCmd(m.buildCmd(ON))
+	m.retryCmd(m.buildCmd(ON))
 }
 
 func (m *Milight) Mode(mode byte) {
 	cmd := MODE
 	cmd[5] = mode
-	m.sendCmd(m.buildCmd(cmd))
+	m.retryCmd(m.buildCmd(cmd))
 }
 
 func (m *Milight) ModeSlow() {
-	m.sendCmd(m.buildCmd(MODESLOW))
+	m.retryCmd(m.buildCmd(MODESLOW))
 }
 
 func (m *Milight) ModeFast() {
-	m.sendCmd(m.buildCmd(MODEFAST))
+	m.retryCmd(m.buildCmd(MODEFAST))
 }
 
 func (m *Milight) Color(color byte) {
@@ -75,17 +75,17 @@ func (m *Milight) Color(color byte) {
 	cmd[6] = color
 	cmd[7] = color
 	cmd[8] = color
-	m.sendCmd(m.buildCmd(cmd))
+	m.retryCmd(m.buildCmd(cmd))
 }
 
 func (m *Milight) White() {
-	m.sendCmd(m.buildCmd(WHITE))
+	m.retryCmd(m.buildCmd(WHITE))
 }
 
 func (m *Milight) Brightness(brightness byte) {
 	cmd := BRIGHTNESS
 	cmd[5] = byte(math.Min(float64(brightness), 100))
-	m.sendCmd(m.buildCmd(cmd))
+	m.retryCmd(m.buildCmd(cmd))
 }
 
 func (m *Milight) Alert() {
@@ -153,13 +153,30 @@ func (m *Milight) login() error {
 
 			//fmt.Printf("WifiBridge ID %x %x\n", m.wb1, m.wb2)
 			return nil
-		} else {
-			return errors.New("Wrong reply")
 		}
+		return errors.New("Wrong reply")
 
-	} else {
-		return errors.New("Discovery Error, retry")
 	}
+
+	return errors.New("Discovery Error, retry")
+}
+
+func (m *Milight) retryCmd(cmd []byte) error {
+	tries := 3
+	for tries > 0 {
+		resp := m.sendCmd(cmd)
+		if cmd[8] == resp[6] && resp[7] == 0 {
+			break
+		}
+		m.login()
+		tries--
+	}
+
+	if tries == 0 {
+		return errors.New("Error sending command after retry")
+	}
+
+	return nil
 }
 
 func (m *Milight) sendCmd(cmd []byte) []byte {
