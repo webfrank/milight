@@ -165,9 +165,12 @@ func (m *Milight) retryCmd(cmd []byte) error {
 	tries := 3
 	for tries > 0 {
 		resp := m.sendCmd(cmd)
-		if cmd[8] == resp[6] && resp[7] == 0 {
-			break
+		if len(cmd) > 7 && len(resp) > 6 {
+			if cmd[8] == resp[6] && resp[7] == 0 {
+				break
+			}
 		}
+
 		m.login()
 		tries--
 	}
