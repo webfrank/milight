@@ -131,7 +131,7 @@ func (m *Milight) discover() (string, error) {
 		n, _, _ := conn.ReadFromUDP(buf)
 		//fmt.Println(addr, n, string(buf[0:n]))
 		s := strings.Split(string(buf[0:n]), ",")
-		fmt.Println(s)
+		//fmt.Println(s)
 		if len(s) == 3 {
 			return s[0], nil
 		}
